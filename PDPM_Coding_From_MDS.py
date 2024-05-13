@@ -3,7 +3,7 @@
 
 # Inisialisation and Variables from MDS
 
-# In[369]:
+# In[873]:
 
 
 import matplotlib.pyplot as plt
@@ -42,8 +42,18 @@ GG0170F1 = 5
 GG0170J1 = 6
 GG0170K1 = 5
 
-#Typhoid arthritis
+#Primiary Diagnosis - #Typhoid arthritis
 I0020B = "A0104"
+
+#SLP
+
+C0500 = 12 #BIMS 15
+
+K0100A = 0
+K0100B = 1
+K0100C = 0
+K0100D = 0
+K0510C2 = 0
 
 #NTA 
 H0100C = 0 #Bladder and Bowel Appliances: Ostomy
@@ -60,11 +70,11 @@ I6200 = 0
 I8000_A = " "
 I8000_B = " "
 I8000_C = " "
-I8000_D = "D61810 "
-I8000_E = "B20 "
+I8000_D = " "
+I8000_E = "C320 "
 I8000_F = " "
-I8000_G = " "
-I8000_H = " "
+I8000_G = "D61810 "
+I8000_H = "B20 "
 I8000_I = "D61811 "
 I8000_J = "T8619 "
 
@@ -89,7 +99,7 @@ O0100M2 = 0
 
 
 
-# In[370]:
+# In[874]:
 
 
 # Base Rates
@@ -112,7 +122,7 @@ NTA_Base_rural = 83.00
 non_case_mix_rural = 105.03
 
 
-# In[371]:
+# In[875]:
 
 
 # PT & OT Adjustment Factors
@@ -150,31 +160,13 @@ def calculate_PT_OT_adjust_factor(day):
     return PT_OT_Adjust_Fact
 
 
-# In[372]:
-
-
-# NTA Adjustment Factors
-#
-
-def calculate_NTA_adjust_factor(day):
-    if 1 <= day <= 3:
-        NTA_adjust_fact = 3.00
-    elif 4 <= day <= 100:
-        NTA_adjust_fact = 1.00        
-    else:
-        NTA_adjust_fact = 0.70  # Handle cases outside defined ranges
-    return NTA_adjust_fact
-
-
-# In[373]:
+# In[876]:
 
 
 # PT & OT Clinical Category from I0020B
 #
 
-target_icd10 = I0020B
-
-def get_icd10_mapping(target_icd10):
+def get_icd10_mapping(I0020B):
     csv_file = "PDPM_ICD10_Mappings_FY2023_clinical_category.csv"
     with open(csv_file, 'r') as file:
         reader = csv.reader(file)
@@ -187,7 +179,7 @@ def get_icd10_mapping(target_icd10):
                     return row[3]
                 else:
                     return None
-                print row[3]
+                #print row[3]
 
 def get_PT_OT_clinical_category(pdpm_clinical_category):
     if pdpm_clinical_category == "Major Joint Replacement or Spinal Surgery ":
@@ -206,7 +198,7 @@ def get_PT_OT_clinical_category(pdpm_clinical_category):
 #print pt_ot_clinical_category
 
 
-# In[374]:
+# In[877]:
 
 
 # PT & OT CMI
@@ -288,7 +280,7 @@ def assign_CMG_PT_OT(clinical_category,pt_score):
     return pt_ot_cmg, pt_cmi, ot_cmi
 
 
-# In[375]:
+# In[878]:
 
 
 # PT & OT Response To Functional Score
@@ -312,7 +304,7 @@ def response_to_func_score(response):
     return score
 
 
-# In[376]:
+# In[879]:
 
 
 # PT & OT Functional Score
@@ -327,13 +319,89 @@ def calculate_PT_OT_func_score():
     return pt_ot_func_score
 
 
-# In[377]:
+# In[894]:
 
 
-# NFS Functional Score
+# SLP CMI
 #
 
-def calculate_NFS_func_score():
+def check_I0020B_I8000():
+    csv_file = "PDPM_ICD10_Mappings_FY2023_SLP.csv"
+    check_I0020B_I8000_value = 0
+    with open(csv_file, 'r') as file:
+        reader = csv.reader(file)
+        
+        for row in reader:
+            #print row
+            if row[2] == I0020B:
+                check_I0020B_I8000_value += 1
+            if row[2] == I8000_A or row[2] == I8000_B or row[2] == I8000_C or row[2] == I8000_D or row[2] == I8000_E or row[2] == I8000_F or row[2] == I8000_G or row[2] == I8000_H or row[2] == I8000_I or row[2] == I8000_J:
+                check_I0020B_I8000_value += 1
+                #print row[1], row[3]
+    return check_I0020B_I8000_value
+
+def assign_CMG_SLP():
+    SLP_factor1 = 0
+    SLP_factor2 = 0
+    
+    SLP_factor1 = check_I0020B_I8000()
+
+    if C0500 <= 13: 
+        SLP_factor1 += 1
+
+    if K0510C2 == 1:
+        SLP_factor2 += 1
+    if K0100A == 1 or K0100B == 1 or K0100C == 1 or K0100D == 1:
+        SLP_factor2 += 1
+    
+    if  SLP_factor1 == 0 and SLP_factor2 == 0:
+        SLP_CMG = "SA"
+        SLP_CMI = 0.68
+    elif  SLP_factor1 == 0 and SLP_factor2 == 1:
+        SLP_CMG = "SB"
+        SLP_CMI = 1.82
+    elif  SLP_factor1 == 0 and SLP_factor2 == 2:
+        SLP_CMG = "SC"
+        SLP_CMI = 2.66
+    elif  SLP_factor1 == 1 and SLP_factor2 == 0:
+        SLP_CMG = "SD"
+        SLP_CMI = 1.46
+    elif  SLP_factor1 == 1 and SLP_factor2 == 1:
+        SLP_CMG = "SE"
+        SLP_CMI = 2.33
+    elif  SLP_factor1 == 1 and SLP_factor2 == 2:
+        SLP_CMG = "SF"
+        SLP_CMI = 2.97
+    elif  SLP_factor1 == 2 and SLP_factor2 == 0:
+        SLP_CMG = "SG"
+        SLP_CMI = 2.04
+    elif  SLP_factor1 == 2 and SLP_factor2 == 1:
+        SLP_CMG = "SH"
+        SLP_CMI = 2.85
+    elif  SLP_factor1 == 2 and SLP_factor2 == 2:
+        SLP_CMG = "SI"
+        SLP_CMI = 3.51
+    elif  SLP_factor1 == 3 and SLP_factor2 == 0:
+        SLP_CMG = "SJ"
+        SLP_CMI = 2.98
+    elif  SLP_factor1 == 3 and SLP_factor2 == 1:
+        SLP_CMG = "SK"
+        SLP_CMI = 3.69
+    elif  SLP_factor1 == 3 and SLP_factor2 == 2:
+        SLP_CMG = "SL"
+        SLP_CMI = 4.19
+    
+    return SLP_CMG, SLP_CMI
+    
+
+
+# In[895]:
+
+
+# Nursing Functional Score
+#
+
+def calculate_nursing_func_score():
     self_care = response_to_func_score(GG0130A1) + response_to_func_score(GG0130C1)
     mobility_1 = (response_to_func_score(GG0170B1)+response_to_func_score(GG0170C1))/2
     mobility_2 = (response_to_func_score(GG0170D1)+response_to_func_score(GG0170E1)+response_to_func_score(GG0170F1))/3
@@ -341,17 +409,23 @@ def calculate_NFS_func_score():
     return NFS_func_score
 
 
-# In[ ]:
+# In[896]:
 
 
-# SLP CMI
+# NTA Adjustment Factors
 #
 
-def assign_CMG_SLP(SLP_factor1,SLP_factor2)
-    
+def calculate_NTA_adjust_factor(day):
+    if 1 <= day <= 3:
+        NTA_adjust_fact = 3.00
+    elif 4 <= day <= 100:
+        NTA_adjust_fact = 1.00        
+    else:
+        NTA_adjust_fact = 0.70  # Handle cases outside defined ranges
+    return NTA_adjust_fact
 
 
-# In[378]:
+# In[897]:
 
 
 # NTA Adjustment Factor
@@ -373,7 +447,7 @@ def calculate_NTA_case_mix(score):
     return NTA_Case_Mix
 
 
-# In[379]:
+# In[898]:
 
 
 ### NTA CMI
@@ -386,7 +460,7 @@ def check_I8000(target_icd10_category):
         reader = csv.reader(file)
         
         for row in reader:
-            #print row[1],row[3]
+        #print row[1],row[3]
             if row[1] == target_icd10_category:
                 if row[3] == I8000_A or row[3] == I8000_B or row[3] == I8000_C or row[3] == I8000_D or row[3] == I8000_E or row[3] == I8000_F or row[3] == I8000_G or row[3] == I8000_H or row[3] == I8000_I or row[3] == I8000_J:
                     check_I8000_value = 1
@@ -535,7 +609,7 @@ def calculate_NTA_score():
 #print calculate_NTA_Score()
 
 
-# In[380]:
+# In[899]:
 
 
 # Per Diem Payment
@@ -547,9 +621,7 @@ def calculate_case_mix_adjusted_payment_day_X(urban,day):
     PT_OT_clinical_category = get_PT_OT_clinical_category(PDPM_clinical_category)
     PT_OT_CMG, PT_CMI, OT_CMI = assign_CMG_PT_OT(PT_OT_clinical_category,PT_OT_func_score)
     
-    SLP_factor1 = 1
-    SLP_factor2 = 2
-    SLP_CMI = assign_CMG_SLP(SLP_factor1,SLP_factor2)
+    SLP_CMG, SLP_CMI = assign_CMG_SLP()
     
     NTA_CMI = calculate_NTA_case_mix(calculate_NTA_Score())
 
@@ -560,25 +632,25 @@ def calculate_case_mix_adjusted_payment_day_X(urban,day):
         OT = OT_Base_Urban * calculate_PT_OT_adjust_factor(day) * OT_CMI
         SLP = SLP_base_urban * SLP_CMI
         nursing = nursing_base_urban
-        NTA = NTA_Base_Urban * calculate_PT_OT_adjust_factor(day) * NTA_CMI
+        NTA = NTA_Base_Urban * calculate_NTA_adjust_factor(day) * NTA_CMI
         NCM = Non_Case_Mix_Urban
     else:
         PT = PT_base_rural * calculate_PT_OT_adjust_factor(day) * PT_CMI
         OT = OT_base_rural * calculate_PT_OT_adjust_factor(day) * OT_CMI
         SLP = SLP_base_rural * SLP_CMI 
         nursing = nursing_base_rural
-        NTA = NTA_Base_Rural * calculate_PT_OT_adjust_factor(day) * NTA_CMI
+        NTA = NTA_Base_Rural * calculate_NTA_adjust_factor(day) * NTA_CMI
         NCM = Non_Case_Mix_Rural
 
          
     case_mix_adjusted_payment_day_X = PT+OT+SLP+nursing+NTA+NCM
-    
+
     return case_mix_adjusted_payment_day_X
 
 CMAP_Day_40 = calculate_case_mix_adjusted_payment_day_X(1,40)
 
 
-# In[381]:
+# In[900]:
 
 
 # Calculate Cumulitive Payment
@@ -593,7 +665,7 @@ def calculate_case_mix_adjusted_payment_cumulitive_day_X(urban,day):
     return case_mix_adjusted_payment_cumulitive_day_X
 
 
-# In[382]:
+# In[901]:
 
 
 # Print Per Diem Payment and Cumulitive Payment
@@ -605,10 +677,12 @@ CMAP_cumulitive_day_40 = calculate_case_mix_adjusted_payment_cumulitive_day_X(1,
 print round(CMAP_day_40)
 print round(CMAP_cumulitive_day_40)
 
-#Error Backlog - 
+#Backlog - 
+# 1. CPS Score is not computed for SLP_CMI. 
+# 2. HIPPS Code to be computed from (1) PT_OT_CMG (2) SLP_CMG (3) nursing_CMG (4)
 
 
-# In[368]:
+# In[903]:
 
 
 # Plot Cumulitive Payment
@@ -627,31 +701,12 @@ def plot_revenue_per_day(urban, days):
     revenues = calculate_case_mix_adjusted_payment_array_day_X(urban, days)
     plt.plot(range(1, days), revenues, marker='o')
     plt.title("Revenue per Day")
-    plt.ylim(600,700)
     plt.xlabel("Day")
     plt.ylabel("Revenue")
     plt.grid(True)
     plt.show()
     
 plot_revenue_per_day(urban=1, days=40)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
