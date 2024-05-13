@@ -3,7 +3,7 @@
 
 # Inisialisation and Variables from MDS
 
-# In[873]:
+# In[1194]:
 
 
 import matplotlib.pyplot as plt
@@ -55,6 +55,86 @@ K0100C = 0
 K0100D = 0
 K0510C2 = 0
 
+#Nursing
+B0100 = 0
+B0700 = 0
+
+C0500 = 0    
+C1000 = 0
+C0700 = 0
+C1000 = 0
+
+D0300 = 0
+D0600 = 10
+
+E0100A = 1
+E0100B = 1
+E0200A = 1
+E0200B = 1
+E0200C = 1
+E0800 = 1
+E0900 = 1
+
+I2000 = 0
+I2100 = 0
+I2900 = 0
+I4400 = 0
+I4900 = 0
+I5100 = 0
+I5200 = 0
+I5300 = 0
+I6200 = 0
+I6300 = 0
+
+J1100C = 0
+J1550A = 0
+J1550B = 0
+
+K0300 = 0
+K0510B2 = 0
+
+
+M0300B1 = 0
+M0300C1 = 0
+M0300D1 = 0 
+M0300E1 = 0
+M0300F1 = 0
+M1030 = 0
+M1040D = 0
+M1200A = 0
+M1200B = 0
+M1200C = 0
+M1200D = 0
+M1200E = 0
+M1200F = 0
+M1200G = 0
+M1200H = 0
+M1200I = 0
+
+N0350A = 0
+N0350B = 0
+
+H0200C = 0
+H0500 = 0 
+O0500A = 0
+O0500B = 0
+O0500C = 0
+O0500D = 0
+O0500E = 0
+O0500F = 0
+O0500G = 0
+O0500H = 0
+O0500I = 0
+O0500J = 0
+O0100A2 = 0
+O0100B2 = 0
+O0100C2 = 0 
+O0100E2 = 0
+O0100F2 = 0
+O0100H2 = 0
+O0100I2 = 0
+O0100J2 = 0
+
 #NTA 
 H0100C = 0 #Bladder and Bowel Appliances: Ostomy
 H0100D = 0
@@ -99,7 +179,7 @@ O0100M2 = 0
 
 
 
-# In[874]:
+# In[1195]:
 
 
 # Base Rates
@@ -122,7 +202,7 @@ NTA_Base_rural = 83.00
 non_case_mix_rural = 105.03
 
 
-# In[875]:
+# In[1196]:
 
 
 # PT & OT Adjustment Factors
@@ -160,7 +240,7 @@ def calculate_PT_OT_adjust_factor(day):
     return PT_OT_Adjust_Fact
 
 
-# In[876]:
+# In[1197]:
 
 
 # PT & OT Clinical Category from I0020B
@@ -198,7 +278,7 @@ def get_PT_OT_clinical_category(pdpm_clinical_category):
 #print pt_ot_clinical_category
 
 
-# In[877]:
+# In[1198]:
 
 
 # PT & OT CMI
@@ -280,7 +360,7 @@ def assign_CMG_PT_OT(clinical_category,pt_score):
     return pt_ot_cmg, pt_cmi, ot_cmi
 
 
-# In[878]:
+# In[1199]:
 
 
 # PT & OT Response To Functional Score
@@ -304,7 +384,7 @@ def response_to_func_score(response):
     return score
 
 
-# In[879]:
+# In[1200]:
 
 
 # PT & OT Functional Score
@@ -319,7 +399,7 @@ def calculate_PT_OT_func_score():
     return pt_ot_func_score
 
 
-# In[894]:
+# In[1201]:
 
 
 # SLP CMI
@@ -395,7 +475,7 @@ def assign_CMG_SLP():
     
 
 
-# In[895]:
+# In[1202]:
 
 
 # Nursing Functional Score
@@ -405,11 +485,182 @@ def calculate_nursing_func_score():
     self_care = response_to_func_score(GG0130A1) + response_to_func_score(GG0130C1)
     mobility_1 = (response_to_func_score(GG0170B1)+response_to_func_score(GG0170C1))/2
     mobility_2 = (response_to_func_score(GG0170D1)+response_to_func_score(GG0170E1)+response_to_func_score(GG0170F1))/3
-    pt_ot_func_score = self_care + mobility_1 + mobility_2
-    return NFS_func_score
+    nursing_func_score = self_care + mobility_1 + mobility_2
+    return nursing_func_score
+
+def get_nursing_CMG_CMI():
+    
+    RUG = " "
+    nursing_CMG = 0
+    nursing_CMI = 0
+    depression = 0
+    skin_treatment = 0
+    behaviour_congni_score = 0
+    ADL_supervision_score = 0
+    
+    #*************************************
+    # Compute Elelemtns like ADL. Depression, Skin Treatment, Behaviour Congnitive Score
+    #*************************************
+    
+    nursing_func_score = calculate_nursing_func_score()
+    
+    if (D0300 >= 10 and D0300 < 99) or D0600 >= 10:
+        depression = 1
+        
+    if M1200A == 1:
+        skin_treatment += skin_treatment
+    elif M1200B == 1:
+        skin_treatment += skin_treatment
+    elif M1200C == 1:
+        skin_treatment += skin_treatment
+    elif M1200D == 1:
+        skin_treatment += skin_treatment
+    elif M1200E == 1:
+        skin_treatment += skin_treatment
+    elif M1200G == 1:
+        skin_treatment += skin_treatment
+    elif M1200H == 1:
+        skin_treatment += skin_treatment
+        
+    if nursing_func_score >= 5:
+        behaviour_congni_score += 1
+    elif C0500 <= 9:
+        behaviour_congni_score += 1
+    elif B0100 == 1 or C1000 == 3 or (B0700 >= 0 and C0700 == 1) or (C1000>=0):
+        behaviour_congni_score += 1
+    elif (E0100A==1) or (E0100B==1) or (2 <= E0200A>=3) or (2 <= E0200B>=3) or (2 <= E0200C>=3) or (2 <= E0800>=3) or (2 <=E0900>=3): 
+        behaviour_congni_score += 1
+
+    if H0200C == 1 or H0500 == 1:
+        ADL_supervision_score += 1
+    elif O0500A == 1 or O0500B == 1:
+        ADL_supervision_score += 1
+    elif O0500C ==1:
+        ADL_supervision_score += 1
+    elif O0500D ==1 or O0500F == 1:
+        ADL_supervision_score += 1
+    elif O0500E ==1:
+        ADL_supervision_score += 1
+    elif O0500G ==1:
+        ADL_supervision_score += 1
+    elif O0500H ==1:
+        ADL_supervision_score += 1
+    elif O0500I ==1:
+        ADL_supervision_score += 1                                                                          
+    elif O0500J ==1:
+        ADL_supervision_score += 1                                                                            
+                                                                              
+    #*************************************
+    # Compute RUG
+    #*************************************
+    
+    if O0100F2 == 1 and O0100E2 == 1:
+        RUG = "ES3" #
+    elif O0100F2 == 1 or O0100E2 == 1:
+        RUG = "ES2" #
+    #elif O0100F2 = 1
+    #    RUG = "ES1"
+    elif B0100 == 1 or I2100 == 1 or (I2900 == 1 and N0350A == 1 and N0350B == 1) or (I5100 == 1 and nursing_func_score >= 5) or (I6200 == 1 and J1100C ==1) or (J1550A==1 and I2000 == 1) or (J1550A == 1 and J1550B == 1) or (J1550A == 1 and K0300 >= 1) or (J1550A == 1 and K0510B2 >= 1):
+        RUG = "HD"
+    elif (I4400 == 1 and nursing_func_score >= 5) or (I5200 == 1 and nursing_func_score >= 5) or (I5300 == 1 and nursing_func_score >= 5) or (I6300 == 1 and O0100C2 >= 5) or (K0510B2 >= 1) or (M0300B1 == 1 and skin_treatment>=2) or (M0300C1 == 1 and skin_treatment>=2)or (M0300D1 == 1 and skin_treatment>=2) or (M0300F1 == 1 and skin_treatment>=2) or (M1030 == 1 and skin_treatment>=2) or (M0300B1 == 1 and skin_treatment>=2) or (M0300B1 == 1 and skin_treatment>=2) or (M1200I == 1 and M1040A ==1) or (O0100B2 == 1) or (O0100J2 == 1) :
+        RUG = "LED"
+    elif (I2000 == 1) or (I4900 ==1 and nursing_func_score >= 5) or (M1040D==1 and M1200F==1) or (M1040D==1 and M1200G==1) or (M1040D==1 and M1200H==1) or (M1040F==1) or (O0100A2==1) or (O0100C2==1) or (O0100H2==1) or (O0100I2==1):
+        RUG = "CABCD"
+    elif behaviour_congni_score >= 2:
+        RUG = "BAB"
+    elif ADL_supervision_score >= 2:
+        RUG = "PABC"
 
 
-# In[896]:
+    #*************************************
+    # Compute CMG and CMI
+    #*************************************
+
+    if RUG == "ES3":
+        nursing_CMG = RUG
+        nursing_CMI = 4.04
+    elif RUG == "ES2":
+        nursing_CMG = RUG
+        nursing_CMI = 3.06 
+    elif RUG == "ES1":
+        nursing_CMG = RUG
+        nursing_CMI = 2.91 
+        
+    elif RUG == "HD" and depression == 1 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "HDE2"
+        nursing_CMI = 2.39
+    elif RUG == "HD" and depression == 0 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "HDE1"
+        nursing_CMI = 1.99 
+    elif RUG == "HD" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "HBC2"
+        nursing_CMI = 2.23 
+    elif RUG == "HD" and depression == 0 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "HBC1"
+        nursing_CMI = 1.85 
+
+    elif RUG == "LED" and depression == 1 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "LDE2"
+        nursing_CMI = 2.07
+    elif RUG == "LED" and depression == 0 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "LDE1"
+        nursing_CMI = 1.72 
+    elif RUG == "LED" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "LBC2"
+        nursing_CMI = 1.71 
+    elif RUG == "LED" and depression == 0 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "LBC1"
+        nursing_CMI = 1.43
+        
+    elif RUG == "CABCD" and depression == 1 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "LDE2"
+        nursing_CMI = 2.07
+    elif RUG == "CABCD" and depression == 0 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "LDE1"
+        nursing_CMI = 1.72 
+    elif RUG == "CABCD" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "LBC2"
+        nursing_CMI = 1.71 
+    elif RUG == "CABCD" and depression == 0 and 15 <= nursing_func_score <= 16 :
+        nursing_CMG = "LBC1"
+        nursing_CMI = 1.43
+    elif RUG == "CABCD" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "LDE2"
+        nursing_CMI = 2.07
+    elif RUG == "CABCD" and depression == 0 and 15 <= nursing_func_score <= 16 :
+        nursing_CMG = "LDE1"
+        nursing_CMI = 1.72 
+
+    elif RUG == "BAB" and depression == 1 and 11 <= nursing_func_score <= 16 :
+        nursing_CMG = "BAB2"
+        nursing_CMI = 1.04
+    elif RUG == "BAB" and depression == 0 and 11 <= nursing_func_score <= 16 :
+        nursing_CMG = "BAB1"
+        nursing_CMI = 0.99
+ 
+    elif RUG == "PABC" and depression == 1 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "PDE2"
+        nursing_CMI = 1.57
+    elif RUG == "PABC" and depression == 0 and 0 <= nursing_func_score <= 5 :
+        nursing_CMG = "PDE1"
+        nursing_CMI = 1.47 
+    elif RUG == "PABC" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "PBC2"
+        nursing_CMI = 1.21 
+    elif RUG == "PABC" and depression == 0 and 15 <= nursing_func_score <= 16 :
+        nursing_CMG = "PA2"
+        nursing_CMI = 0.7
+    elif RUG == "PABC" and depression == 1 and 6 <= nursing_func_score <= 14 :
+        nursing_CMG = "PBC1"
+        nursing_CMI = 1.13
+    elif RUG == "PABC" and depression == 0 and 15 <= nursing_func_score <= 16 :
+        nursing_CMG = "PA1"
+        nursing_CMI = 0.66 
+        
+    return nursing_CMG, nursing_CMI
+
+
+# In[1203]:
 
 
 # NTA Adjustment Factors
@@ -425,29 +676,36 @@ def calculate_NTA_adjust_factor(day):
     return NTA_adjust_fact
 
 
-# In[897]:
+# In[1204]:
 
 
 # NTA Adjustment Factor
 #
 
+
 def calculate_NTA_case_mix(score):
     if score == 0:
         NTA_Case_Mix = 0.72
+        NTA_CMG = "NF"
     elif 1 <= score <= 2:
         NTA_Case_Mix = 0.96 
+        NTA_CMG = "NE"
     elif 3 <= score <= 5:
         NTA_Case_Mix = 1.34   
+        NTA_CMG = "ND"
     elif 6 <= score <= 8:
-        NTA_Case_Mix = 1.85   
+        NTA_Case_Mix = 1.85
+        NTA_CMG = "NC"
     elif 9 <= score <= 11:
-        NTA_Case_Mix = 2.53   
+        NTA_Case_Mix = 2.53
+        NTA_CMG = "NB"
     else:
         NTA_Case_Mix = 3.25 
-    return NTA_Case_Mix
+        NTA_CMG = "NA"
+    return NTA_CMG,NTA_Case_Mix
 
 
-# In[898]:
+# In[1205]:
 
 
 ### NTA CMI
@@ -609,7 +867,7 @@ def calculate_NTA_score():
 #print calculate_NTA_Score()
 
 
-# In[899]:
+# In[1206]:
 
 
 # Per Diem Payment
@@ -623,7 +881,9 @@ def calculate_case_mix_adjusted_payment_day_X(urban,day):
     
     SLP_CMG, SLP_CMI = assign_CMG_SLP()
     
-    NTA_CMI = calculate_NTA_case_mix(calculate_NTA_Score())
+    nursing_CMG, nursing_CMI = get_nursing_CMG_CMI()
+    
+    NTA_CMG,NTA_CMI = calculate_NTA_case_mix(calculate_NTA_Score())
 
     if urban == 1:
         PT = PT_Base_Urban * calculate_PT_OT_adjust_factor(day) * PT_CMI
@@ -638,19 +898,22 @@ def calculate_case_mix_adjusted_payment_day_X(urban,day):
         PT = PT_base_rural * calculate_PT_OT_adjust_factor(day) * PT_CMI
         OT = OT_base_rural * calculate_PT_OT_adjust_factor(day) * OT_CMI
         SLP = SLP_base_rural * SLP_CMI 
-        nursing = nursing_base_rural
+        nursing = nursing_base_rural * nursing_CMI
         NTA = NTA_Base_Rural * calculate_NTA_adjust_factor(day) * NTA_CMI
         NCM = Non_Case_Mix_Rural
-
-         
+        
+    #print HIPPS_Code
     case_mix_adjusted_payment_day_X = PT+OT+SLP+nursing+NTA+NCM
+    HIPPS_Code = "ZZZZZ"
+    HIPPS_Code = PT_OT_CMG[1]+SLP_CMG[1]+NTA_CMG[1]+"1"
 
+    
     return case_mix_adjusted_payment_day_X
 
-CMAP_Day_40 = calculate_case_mix_adjusted_payment_day_X(1,40)
+#CMAP_Day_40 = calculate_case_mix_adjusted_payment_day_X(1,40)
 
 
-# In[900]:
+# In[1207]:
 
 
 # Calculate Cumulitive Payment
@@ -665,7 +928,7 @@ def calculate_case_mix_adjusted_payment_cumulitive_day_X(urban,day):
     return case_mix_adjusted_payment_cumulitive_day_X
 
 
-# In[901]:
+# In[1208]:
 
 
 # Print Per Diem Payment and Cumulitive Payment
@@ -679,10 +942,12 @@ print round(CMAP_cumulitive_day_40)
 
 #Backlog - 
 # 1. CPS Score is not computed for SLP_CMI. 
-# 2. HIPPS Code to be computed from (1) PT_OT_CMG (2) SLP_CMG (3) nursing_CMG (4)
+# 2. In get_nursing_CMG_CMI() - Coding Needs to be duble checked
+# 3. Done - HIPPS Code to be computed from (1) PT_OT_CMG (2) SLP_CMG (3) nursing_CMG (4) NTA_CMG
 
 
-# In[903]:
+
+# In[1193]:
 
 
 # Plot Cumulitive Payment
@@ -707,18 +972,6 @@ def plot_revenue_per_day(urban, days):
     plt.show()
     
 plot_revenue_per_day(urban=1, days=40)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
