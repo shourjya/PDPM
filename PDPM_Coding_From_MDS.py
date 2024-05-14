@@ -891,7 +891,7 @@ def calculate_case_mix_adjusted_payment_day_X(urban,day):
         #print ("Factor",calculate_PT_OT_Adjust_Fact(Day))
         OT = OT_Base_Urban * calculate_PT_OT_adjust_factor(day) * OT_CMI
         SLP = SLP_base_urban * SLP_CMI
-        nursing = nursing_base_urban
+        nursing = nursing_base_urban * nursing_CMI
         NTA = NTA_Base_Urban * calculate_NTA_adjust_factor(day) * NTA_CMI
         NCM = Non_Case_Mix_Urban
     else:
